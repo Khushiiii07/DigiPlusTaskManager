@@ -33,7 +33,6 @@
             min-height: 100vh;
         }
 
-        /* Top Header Navigation */
         .app-header {
             background: rgba(21, 28, 44, 0.9);
             backdrop-filter: blur(12px);
@@ -50,30 +49,29 @@
             font-weight: 700;
         }
 
-        /* Modern Card Styling */
         .custom-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 16px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-            transition: border-color 0.2s ease;
+            transition: all 0.25s ease-in-out;
         }
 
         .custom-card:hover {
             border-color: var(--accent-purple);
+            box-shadow: 0 12px 28px -5px rgba(99, 102, 241, 0.25);
         }
 
         .card-title-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
         }
 
-        /* High-Contrast Form Inputs & Labels */
         .form-label {
             color: var(--text-subtle) !important;
             font-size: 0.8rem;
@@ -97,7 +95,6 @@
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
         }
 
-        /* Buttons */
         .btn-gradient {
             background: linear-gradient(135deg, var(--accent-purple), #4f46e5);
             color: #ffffff !important;
@@ -105,14 +102,14 @@
             border: none;
             border-radius: 10px;
             padding: 0.75rem 1.5rem;
-            transition: opacity 0.2s ease;
+            transition: transform 0.15s ease, opacity 0.2s ease;
         }
 
         .btn-gradient:hover {
-            opacity: 0.9;
+            opacity: 0.95;
+            transform: translateY(-1px);
         }
 
-        /* High-Contrast Table Styling */
         .table-custom {
             color: var(--text-body) !important;
             background-color: transparent !important;
@@ -135,7 +132,6 @@
             vertical-align: middle;
         }
 
-        /* Status Badges */
         .status-badge {
             padding: 0.35rem 0.75rem;
             border-radius: 20px;
@@ -157,7 +153,6 @@
             border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
-        /* Output Box */
         .ai-output-box {
             background-color: var(--input-bg);
             border: 1px dashed var(--border-color);
@@ -169,22 +164,37 @@
 </head>
 <body>
 
+    <%
+        String reqTitle = request.getAttribute("title") != null ? (String) request.getAttribute("title") : "";
+        String reqParticipants = request.getAttribute("participants") != null ? (String) request.getAttribute("participants") : "";
+        String reqNotes = request.getParameter("rawNotes") != null ? request.getParameter("rawNotes") : "";
+        String errorMessage = (String) request.getAttribute("errorMessage");
+    %>
+
     <!-- Navigation Header -->
     <header class="app-header py-3 mb-4">
         <div class="container d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
-                <i class="fa-solid fa-brain text-primary fs-3" style="color: var(--accent-purple) !important;"></i>
+                <i class="fa-solid fa-brain fs-3" style="color: var(--accent-purple) !important;"></i>
                 <span class="fs-4 brand-badge">DigiPlus AI</span>
                 <span class="badge bg-secondary bg-opacity-20 text-light border border-secondary border-opacity-20 ms-2">v1.0</span>
             </div>
             <div class="d-flex align-items-center gap-3">
                 <span class="small text-light d-none d-md-inline"><i class="fa-solid fa-circle text-success me-1"></i> System Ready</span>
-                <button class="btn btn-outline-light btn-sm rounded-pill px-3"><i class="fa-solid fa-book me-1"></i> Knowledge Base</button>
+                <a href="knowledge-base.jsp" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                    <i class="fa-solid fa-book me-1"></i> Knowledge Base
+                </a>
             </div>
         </div>
     </header>
 
     <div class="container pb-5">
+        <% if (errorMessage != null) { %>
+            <div class="alert alert-danger bg-danger bg-opacity-20 text-danger border-danger border-opacity-30 mb-4 rounded-3" role="alert">
+                <i class="fa-solid fa-circle-exclamation me-2"></i><%= errorMessage %>
+            </div>
+        <% } %>
+
         <div class="row g-4">
             
             <!-- LEFT PANEL: Capture Form -->
@@ -203,17 +213,17 @@
                     <form action="ProcessMeetingServlet" method="POST">
                         <div class="mb-3">
                             <label class="form-label fw-bold">MEETING / HANDOVER TITLE</label>
-                            <input type="text" name="title" class="form-control" placeholder="e.g. Backend API Migration Review" required>
+                            <input type="text" name="title" class="form-control" value="<%= reqTitle %>" placeholder="e.g. Backend API Migration Review" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">PARTICIPANTS / DELEGATES</label>
-                            <input type="text" name="participants" class="form-control" placeholder="e.g. Alex, Sarah, David" required>
+                            <input type="text" name="participants" class="form-control" value="<%= reqParticipants %>" placeholder="e.g. Alex, Sarah, David" required>
                         </div>
 
                         <div class="mb-4">
                             <label class="form-label fw-bold">UNSTRUCTURED NOTES / EMAIL / TRANSCRIPT</label>
-                            <textarea name="rawNotes" class="form-control" rows="7" placeholder="Paste unstructured meeting notes, Slack messages, or emails here..." required></textarea>
+                            <textarea name="rawNotes" class="form-control" rows="7" placeholder="Paste unstructured meeting notes, Slack messages, or emails here..." required><%= reqNotes %></textarea>
                         </div>
 
                         <button type="submit" class="btn btn-gradient w-100 d-flex align-items-center justify-content-center gap-2">
@@ -269,11 +279,13 @@
                                 <small style="color: var(--text-subtle);">Tracking open and carried-forward tasks</small>
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-outline-light rounded-pill"><i class="fa-solid fa-plus me-1"></i> Add Task</button>
+                        <button type="button" class="btn btn-sm btn-outline-light rounded-pill" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+                            <i class="fa-solid fa-plus me-1"></i> Add Task
+                        </button>
                     </div>
 
                     <div class="table-responsive">
-                        <table class="table table-custom align-middle mb-0">
+                        <table class="table table-custom align-middle mb-0" id="actionTaskTable">
                             <thead>
                                 <tr>
                                     <th>Task Name</th>
@@ -326,7 +338,7 @@
 
         </div>
 
-        <!-- CATCH-UP BRIEF BANNER (Special Feature Section) -->
+        <!-- CATCH-UP BRIEF BANNER -->
         <div class="row mt-4">
             <div class="col-12">
                 <div class="custom-card p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
@@ -339,16 +351,72 @@
                             <p class="mb-0 small" style="color: var(--text-subtle);">Generate an instant catch-up brief with linked historical context.</p>
                         </div>
                     </div>
-                    <button class="btn btn-outline-info rounded-pill px-4 text-nowrap">
+                    <a href="catchup-brief.jsp?title=<%= reqTitle %>&participants=<%= reqParticipants %>" class="btn btn-outline-info rounded-pill px-4 text-nowrap">
                         <i class="fa-solid fa-compass me-1"></i> Generate Catch-Up Brief
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
 
     </div>
 
+    <!-- Modal for Dynamic Task Creation -->
+    <div class="modal fade" id="addTaskModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-secondary" style="background-color: var(--card-bg); color: var(--text-body);">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-white"><i class="fa-solid fa-plus-circle me-2 text-info"></i>Add Action Item</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">TASK NAME</label>
+                        <input type="text" id="newTaskName" class="form-control" placeholder="e.g. Conduct security vulnerability assessment">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">OWNER / DELEGATE</label>
+                        <input type="text" id="newTaskOwner" class="form-control" placeholder="e.g. Sarah">
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-gradient" onclick="addNewTask()">Add Task</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function addNewTask() {
+            const name = document.getElementById('newTaskName').value.trim();
+            const owner = document.getElementById('newTaskOwner').value.trim();
+
+            if (!name || !owner) {
+                alert('Please fill out both Task Name and Owner.');
+                return;
+            }
+
+            const tableBody = document.querySelector('#actionTaskTable tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td class="fw-semibold">\${name}</td>
+                <td class="text-info fw-medium">\${owner}</td>
+                <td style="color: var(--text-subtle);" class="small">Nov 05, 2026</td>
+                <td><span class="status-badge status-open"><i class="fa-solid fa-clock me-1"></i> Open</span></td>
+            `;
+
+            tableBody.appendChild(newRow);
+
+            // Reset inputs and close modal
+            document.getElementById('newTaskName').value = '';
+            document.getElementById('newTaskOwner').value = '';
+            const modalElement = document.getElementById('addTaskModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            modalInstance.hide();
+        }
+    </script>
 </body>
 </html>
